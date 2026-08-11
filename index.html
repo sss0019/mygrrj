@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFF8F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>学生记账+课表</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="pages">
+
+      <!-- 首页 -->
+      <section id="page-home" class="page active">
+        <div class="page-scroll">
+          <div class="home-header">
+            <div class="home-clock" id="homeClock">00:00:00</div>
+            <p class="home-date" id="homeDate"></p>
+          </div>
+
+          <div class="ring-section">
+            <div class="ring-container" id="ringContainer">
+              <svg class="ring-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FF8C61" />
+                    <stop offset="100%" stop-color="#FF6B35" />
+                  </linearGradient>
+                </defs>
+                <circle class="ring-bg" cx="100" cy="100" r="85" />
+                <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="85" />
+              </svg>
+              <div class="ring-center">
+                <span class="ring-emoji" id="ringEmoji">💰</span>
+                <span class="ring-percent" id="ringPercent">0%</span>
+                <span class="ring-label" id="ringLabel">本月支出</span>
+              </div>
+            </div>
+            <div class="ring-subtitle" id="ringSubtitle">预算 ¥0</div>
+          </div>
+
+          <div class="today-schedule-section">
+            <div class="section-title">今日课表</div>
+            <div id="todayScheduleList" class="today-schedule-list">
+              <div class="empty-state">今天没课，好好休息～</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 记账页 -->
+      <section id="page-expense" class="page">
+        <div class="page-scroll">
+          <div class="expense-header">
+            <h1 class="page-title">账单</h1>
+            <div class="budget-bar" id="budgetBar">
+              <div class="budget-bar-bg">
+                <div class="budget-bar-fill" id="budgetBarFill"></div>
+              </div>
+              <span class="budget-bar-text" id="budgetBarText">0%</span>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="filter-category" id="filterCategory">
+              <span class="filter-label active" data-cat="all">全部</span>
+              <span class="filter-label" data-cat="expense">支出</span>
+              <span class="filter-label" data-cat="income">收入</span>
+            </div>
+            <div class="filter-date" id="filterDateBtn">
+              <span>📅 日期</span>
+            </div>
+          </div>
+
+          <div class="modal" id="dateFilterModal">
+            <div class="modal-overlay" data-close></div>
+            <div class="modal-content">
+              <div class="modal-header">
+                <span>选择日期范围</span>
+                <button class="modal-close" data-close>&#10005;</button>
+              </div>
+              <div class="modal-body">
+                <div class="date-input-group">
+                  <label>开始日期</label>
+                  <input type="date" id="dateStart">
+                </div>
+                <div class="date-input-group">
+                  <label>结束日期</label>
+                  <input type="date" id="dateEnd">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-close>取消</button>
+                <button class="btn btn-primary" id="confirmDateFilter">确定</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="expenseList" class="expense-list">
+            <div class="empty-state">暂无记录</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 记账弹窗 -->
+      <div class="modal" id="expenseModal">
+        <div class="modal-overlay" data-close></div>
+        <div class="modal-content expense-modal">
+          <div class="modal-header">
+            <span>记一笔</span>
+            <button class="modal-close" data-close>&#10005;</button>
+          </div>
+          <div class="modal-body">
+            <div class="type-toggle">
+              <button class="type-btn active" data-type="expense">支出</button>
+              <button class="type-btn" data-type="income">收入</button>
+            </div>
+            <div class="category-grid" id="categoryGrid"></div>
+            <div class="amount-input-group">
+              <span class="amount-symbol">¥</span>
+              <input type="text" id="amountInput" placeholder="0.00" inputmode="decimal">
+            </div>
+            <div class="date-input-group">
+              <label>日期</label>
+              <input type="date" id="expenseDate">
+            </div>
+            <div class="date-input-group">
+              <label>备注（选填）</label>
+              <input type="text" id="expenseNote" placeholder="写点什么..">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>取消</button>
+            <button class="btn btn-primary" id="confirmExpense">确认</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 课表页 -->
+      <section id="page-schedule" class="page">
+        <div class="page-scroll">
+          <div class="schedule-header">
+            <h1 class="page-title">课表</h1>
+            <div class="schedule-view-toggle">
+              <button class="view-btn active" id="weekViewBtn">周视图</button>
+              <button class="view-btn" id="dayViewBtn">日视图</button>
+            </div>
+          </div>
+
+          <div class="week-nav" id="weekNav">
+            <button class="nav-btn" id="prevWeek">&#8249;</button>
+            <span class="week-label" id="weekLabel">本周</span>
+            <button class="nav-btn" id="nextWeek">&#8250;</button>
+          </div>
+
+          <div class="day-nav" id="dayNav" style="display:none;">
+            <button class="nav-btn" id="prevDay">&#8249;</button>
+            <span class="day-label" id="dayLabel">今天</span>
+            <button class="nav-btn" id="nextDay">&#8250;</button>
+          </div>
+
+          <div class="semester-notice" id="semesterNotice" style="display:none;">
+            请先在「我的」页面设置学期起始日期
+          </div>
+
+          <div class="schedule-grid-wrapper" id="scheduleGridWrapper">
+            <div class="schedule-grid" id="scheduleGrid"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 添加课程弹窗 -->
+      <div class="modal" id="courseModal">
+        <div class="modal-overlay" data-close></div>
+        <div class="modal-content course-modal">
+          <div class="modal-header">
+            <span id="courseModalTitle">添加课程</span>
+            <button class="modal-close" data-close>&#10005;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>课程名 *</label>
+              <input type="text" id="courseName" placeholder="输入课程名称">
+            </div>
+            <div class="form-group">
+              <label>教室</label>
+              <input type="text" id="courseRoom" placeholder="选填">
+            </div>
+            <div class="form-group">
+              <label>老师</label>
+              <input type="text" id="courseTeacher" placeholder="选填">
+            </div>
+            <div class="form-group">
+              <label>周几</label>
+              <div class="weekday-selector" id="weekdaySelector">
+                <button class="weekday-btn" data-day="1">一</button>
+                <button class="weekday-btn" data-day="2">二</button>
+                <button class="weekday-btn" data-day="3">三</button>
+                <button class="weekday-btn" data-day="4">四</button>
+                <button class="weekday-btn" data-day="5">五</button>
+                <button class="weekday-btn" data-day="6">六</button>
+                <button class="weekday-btn" data-day="0">日</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>起始节次</label>
+                <select id="courseStartPeriod"></select>
+              </div>
+              <div class="form-group">
+                <label>结束节次</label>
+                <select id="courseEndPeriod"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>起止周次</label>
+              <div class="week-range-group">
+                <input type="number" class="week-range-input" id="weekStart" min="1" max="52" placeholder="起始">
+                <span class="week-range-sep">至</span>
+                <input type="number" class="week-range-input" id="weekEnd" min="1" max="52" placeholder="结束">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>课程颜色</label>
+              <div class="color-picker" id="colorPicker"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>取消</button>
+            <button class="btn btn-danger" id="deleteCourseBtn" style="display:none;">删除</button>
+            <button class="btn btn-primary" id="confirmCourse">确认</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 我的页面 -->
+      <section id="page-profile" class="page">
+        <div class="page-scroll">
+          <div class="profile-header">
+            <div class="avatar">🧑</div>
+            <h1 class="page-title">我的</h1>
+          </div>
+
+          <div class="settings-section">
+            <div class="setting-item">
+              <div class="setting-left">
+                <span class="setting-icon">💰</span>
+                <span class="setting-label">月预算</span>
+              </div>
+              <div class="setting-right">
+                <input type="number" id="budgetInput" placeholder="0" min="0">
+                <button class="btn btn-small" id="saveBudget">保存</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-left">
+                <span class="setting-icon">🌙</span>
+                <span class="setting-label">暗色模式</span>
+              </div>
+              <div class="setting-right">
+                <label class="toggle">
+                  <input type="checkbox" id="darkModeToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-left">
+                <span class="setting-icon">📅</span>
+                <span class="setting-label">学期起始日期</span>
+              </div>
+              <div class="setting-right">
+                <input type="date" id="semesterStartInput">
+              </div>
+            </div>
+
+            <div class="setting-item" style="border-bottom:none;">
+              <div class="setting-left">
+                <span class="setting-icon">📊</span>
+                <span class="setting-label">本月支出</span>
+              </div>
+              <div class="setting-right">
+                <span class="setting-value" id="monthExpenseValue">¥0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="setting-item">
+              <div class="setting-left">
+                <span class="setting-icon">⬇️</span>
+                <span class="setting-label">导出备份</span>
+              </div>
+              <div class="setting-right">
+                <button class="btn btn-small" id="exportBtn">导出</button>
+              </div>
+            </div>
+
+            <div class="setting-item" style="border-bottom:none;">
+              <div class="setting-left">
+                <span class="setting-icon">⬆️</span>
+                <span class="setting-label">导入备份</span>
+              </div>
+              <div class="setting-right">
+                <input type="file" id="importFile" accept=".json" style="display:none;">
+                <button class="btn btn-small" id="importBtn">导入</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 悬浮按钮 -->
+    <button class="fab" id="fabAdd">+</button>
+    <button class="fab" id="fabAddCourse">+</button>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-item active" data-page="home">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">首页</span>
+      </button>
+      <button class="nav-item" data-page="expense">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">记账</span>
+      </button>
+      <button class="nav-item" data-page="schedule">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">课表</span>
+      </button>
+      <button class="nav-item" data-page="profile">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">我的</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/expense.js"></script>
+  <script src="js/schedule.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
