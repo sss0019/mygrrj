@@ -4,8 +4,6 @@
 (function () {
   const pages = ['home', 'expense', 'schedule', 'profile'];
   let currentPage = 'home';
-  let touchStartX = 0;
-  let touchEndX = 0;
 
   // 初始化
   function init() {
@@ -14,7 +12,6 @@
     updateClock();
     setInterval(updateClock, 1000);
     setupNavigation();
-    setupSwipe();
     setupGlobalModals();
 
     toggleFAB('home');
@@ -201,25 +198,6 @@
     if (pageName === 'expense') ExpenseModule.refresh();
     if (pageName === 'schedule') ScheduleModule.render();
     if (pageName === 'profile') ProfileModule.refresh();
-  }
-
-  // 滑动切换
-  function setupSwipe() {
-    const el = document.getElementById('pages');
-    el.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    el.addEventListener('touchend', e => {
-      touchEndX = e.changedTouches[0].screenX;
-      const diff = touchStartX - touchEndX;
-      if (Math.abs(diff) < 60) return;
-      const idx = pages.indexOf(currentPage);
-      if (diff > 0 && idx < pages.length - 1) {
-        switchPage(pages[idx + 1]);
-      } else if (diff < 0 && idx > 0) {
-        switchPage(pages[idx - 1]);
-      }
-    }, { passive: true });
   }
 
   // 全局弹窗关闭

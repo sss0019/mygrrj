@@ -173,7 +173,7 @@ const ScheduleModule = (function () {
       cell.className = 'date-header-cell' + (isToday ? ' today' : '');
       const dDate = new Date(currentWeekStart);
       dDate.setDate(dDate.getDate() + i);
-      cell.textContent = dayNames[i] + ' ' + (dDate.getMonth() + 1) + '/' + dDate.getDate();
+      cell.innerHTML = dayNames[i] + '<br>' + (dDate.getMonth() + 1) + '/' + dDate.getDate();
       headerEl.appendChild(cell);
     }
     wrapper.insertBefore(headerEl, grid);
@@ -251,7 +251,7 @@ const ScheduleModule = (function () {
     headerEl.appendChild(gap2);
     const cell = document.createElement('div');
     cell.className = 'date-header-cell' + (isToday ? ' today' : '');
-    cell.textContent = dayNames[dayOfWeek] + ' ' + (currentDay.getMonth() + 1) + '/' + currentDay.getDate();
+    cell.innerHTML = dayNames[dayOfWeek] + '<br>' + (currentDay.getMonth() + 1) + '/' + currentDay.getDate();
     headerEl.appendChild(cell);
     wrapper.insertBefore(headerEl, grid);
     grid.className = 'schedule-grid day-grid';
@@ -373,6 +373,12 @@ const ScheduleModule = (function () {
     const startP = document.getElementById('courseStartPeriod').value;
     const endP = document.getElementById('courseEndPeriod').value;
     if (parseInt(startP) > parseInt(endP)) { showToast('Start period cannot be after end period'); return; }
+    const weekStartVal = document.getElementById('weekStart').value.trim();
+    const weekEndVal = document.getElementById('weekEnd').value.trim();
+    if (!weekStartVal || !weekEndVal || isNaN(parseInt(weekStartVal)) || isNaN(parseInt(weekEndVal))) {
+      showToast('请输入完整的起止周次');
+      return;
+    }
     const selectedColor = document.querySelector('.color-swatch.selected');
     const color = selectedColor ? selectedColor.dataset.color : COURSE_COLORS[0];
     const courseData = {
@@ -382,7 +388,7 @@ const ScheduleModule = (function () {
       days: selectedWeekdays,
       startPeriod: startP,
       endPeriod: endP,
-      weekRange: document.getElementById('weekStart').value + '-' + document.getElementById('weekEnd').value,
+      weekRange: weekStartVal + '-' + weekEndVal,
       color,
     };
     const courses = DataStore.getCourses();
