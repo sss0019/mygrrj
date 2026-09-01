@@ -244,7 +244,17 @@ const ExpenseModule = (function () {
           <div class="expense-amount">${sign}¥${item.amount.toFixed(2)}</div>
           <div class="expense-date">${item.date.slice(5)}</div>
         </div>
+        <button class="delete-expense-btn" data-id="${item.id}">&#10005;</button>
       `;
+      el.querySelector('.delete-expense-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm('删除这条记录？')) return;
+        let expenses = DataStore.getExpenses();
+        expenses = expenses.filter(exp => exp.id !== item.id);
+        DataStore.saveExpenses(expenses);
+        renderExpenseList();
+        bindBudgetBar();
+      });
       container.appendChild(el);
     });
   }

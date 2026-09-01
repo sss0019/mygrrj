@@ -178,6 +178,19 @@ body {
 .expense-item.income .expense-amount { color: var(--success); }
 .expense-date { font-size: 11px; color: #888888; text-align: right; white-space: nowrap; }
 
+/* Delete button on expense items */
+.delete-expense-btn {
+  width: 28px; height: 28px; border: none;
+  background: var(--bg-secondary); border-radius: 50%;
+  font-size: 11px; color: var(--text-secondary);
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.delete-expense-btn:active {
+  background: #FF6B6B; color: #fff;
+}
+
 /* ===== FAB ===== */
 .fab {
   position: fixed; bottom: calc(var(--nav-height) + 8px) !important; right: 20px !important;
